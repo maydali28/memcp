@@ -95,3 +95,34 @@ MemCP implements the Recursive Language Model framework (arXiv:2512.24601):
 | Graph memory | MAGMA 4-graph in SQLite |
 
 The key distinction from RAG: MemCP uses **active exploration** (model decides what to load) vs **passive retrieval** (fixed embed → search → top-K pipeline). Content stays on disk as named variables; the model navigates via tools.
+
+## Quantitative Comparison (Benchmarks)
+
+MemCP includes a [benchmark suite](../tests/benchmark/) with 77 benchmarks comparing native context-window-only operation against RLM-mode persistent memory. Key findings:
+
+### Token Efficiency — Context Window Tokens Consumed
+
+| Operation | Native (worst-case) | RLM | Advantage |
+|-----------|-------------------|-----|-----------|
+| Reload 500 prior insights | 9,380 tokens | 462 tokens | 20.3x less |
+| Analyse a 50K-token document | 50,460 tokens | 231 tokens | 218.4x less |
+| Cross-reference decisions | 1,861 tokens | 172 tokens | 10.8x less |
+| Search across 5K insights | 91,705 tokens | 192 tokens | 477.6x less |
+
+### Context Rot — Knowledge Retained After Compaction
+
+| Event | Native | RLM |
+|-------|--------|-----|
+| Single `/compact` | ~5% | 100% |
+| 3 cascading compactions | ~2% | 100% |
+| Cross-session (session 1 → session 5) | 0% | 92% |
+| Critical insights after 60 days | 0% | 100% |
+
+### Context Window Pressure
+
+| Metric | Native | RLM |
+|--------|--------|-----|
+| Window utilisation with 10 docs | 93.6% | 1.0% |
+| Docs manageable in 128K window | 13 | 50 |
+
+**Methodology**: The native baseline models worst-case loading (all knowledge in the context window). Real Claude Code also uses built-in tools (Read, Grep) for on-demand retrieval, so the native numbers represent an upper bound. RLM-side measurements are against the real MemCP implementation. See the [full benchmark report](../benchmark_output/benchmark_report.md) for all 40 comparisons and detailed methodology notes.

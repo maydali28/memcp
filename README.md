@@ -106,9 +106,131 @@ graph TB
 
 ### Developer Experience
 - **341 tests** across 16 test files, CI on Python 3.10/3.11/3.12
+- **77 benchmarks** — token efficiency, context rot, window management, scale behavior
 - **Interactive installer** — step-by-step setup with `bash scripts/install.sh`
 - **Docker support** — single-command containerized deployment
 - **Zero-config** — works out of the box with sensible defaults
+
+---
+
+## Available MCP Tools
+
+MemCP exposes **21 MCP tools** organized into 6 categories. For full documentation with parameters, examples, and tips, see [docs/TOOLS.md](docs/TOOLS.md).
+
+### Core Memory (5 tools)
+
+| Tool | Description |
+|------|-------------|
+| `memcp_ping` | Health check — returns server status and memory statistics |
+| `memcp_remember` | Save an insight to persistent memory (decisions, facts, preferences, findings) |
+| `memcp_recall` | Retrieve insights from memory with query, category, importance, and token budget filters |
+| `memcp_forget` | Remove an insight from memory by ID |
+| `memcp_status` | Current memory statistics — insight count, categories, importance distribution |
+
+### Context Management (8 tools)
+
+| Tool | Description |
+|------|-------------|
+| `memcp_load_context` | Store content as a named context variable on disk (from text or file path) |
+| `memcp_inspect_context` | Inspect a stored context — metadata and preview without loading full content |
+| `memcp_get_context` | Read a stored context's content or a specific line range |
+| `memcp_chunk_context` | Split a stored context into navigable numbered chunks (6 strategies: auto, lines, paragraphs, headings, chars, regex) |
+| `memcp_peek_chunk` | Read a specific chunk from a chunked context |
+| `memcp_filter_context` | Filter context content by regex pattern — returns only matching (or non-matching) lines |
+| `memcp_list_contexts` | List all stored context variables |
+| `memcp_clear_context` | Delete a stored context and its chunks |
+
+### Search (1 tool)
+
+| Tool | Description |
+|------|-------------|
+| `memcp_search` | Search across memory insights and context chunks — auto-selects best available method (hybrid → BM25 → keyword) |
+
+### Graph Memory (2 tools)
+
+| Tool | Description |
+|------|-------------|
+| `memcp_related` | Traverse graph from an insight — find connected knowledge via semantic, temporal, causal, or entity edges |
+| `memcp_graph_stats` | Graph statistics — node count, edge counts by type, top entities |
+
+### Retention Lifecycle (3 tools)
+
+| Tool | Description |
+|------|-------------|
+| `memcp_retention_preview` | Preview what would be archived or purged (dry-run, no changes) |
+| `memcp_retention_run` | Execute retention — archive old items, optionally purge past retention period |
+| `memcp_restore` | Restore an archived context or insight back to active |
+
+### Multi-Project & Session (2 tools)
+
+| Tool | Description |
+|------|-------------|
+| `memcp_projects` | List all projects with insight, context, and session counts |
+| `memcp_sessions` | List sessions, optionally filtered by project |
+
+---
+
+## Benchmarks
+
+MemCP includes a benchmark suite that measures the token efficiency advantage of persistent memory over context-window-only operation. The suite compares **Native mode** (all knowledge in the context window) against **RLM mode** (knowledge stored externally, loaded on demand via MCP tools).
+
+### Token Efficiency
+
+| Scenario | Native | RLM | Advantage |
+|----------|--------|-----|-----------|
+| Reload 50 insights | 896 tokens | 167 tokens | 5.4x less |
+| Reload 500 insights | 9,380 tokens | 462 tokens | 20.3x less |
+| Analyse 5K-token doc | 5,077 tokens | 231 tokens | 22.0x less |
+| Analyse 50K-token doc | 50,460 tokens | 231 tokens | 218.4x less |
+| Cross-reference knowledge | 1,861 tokens | 172 tokens | 10.8x less |
+
+### Context Rot Resistance
+
+| Event | Native | RLM |
+|-------|--------|-----|
+| After `/compact` | ~5% retained | 100% retained |
+| After 3 compactions | ~2% retained | 100% retained |
+| Cross-session recall | 0% | 92% |
+
+### Context Window Management
+
+| Scenario | Native | RLM |
+|----------|--------|-----|
+| 10 simultaneous docs — window utilisation | 93.6% | 1.0% |
+| Documents manageable (128K window) | 13 | 50 |
+| Turns before first eviction | early | 100+ |
+
+> **Methodology note**: The native baseline models worst-case context window loading. Real Claude Code also uses built-in tools for on-demand retrieval. See the [full benchmark report](benchmark_output/benchmark_report.md) for methodology notes, caveats, and all 40 comparisons.
+
+Run the benchmarks yourself:
+```bash
+pip install -e ".[dev,benchmark]"
+pytest tests/benchmark/ --benchmark-only -v
+```
+
+Full report: [`benchmark_output/benchmark_report.md`](benchmark_output/benchmark_report.md) | Raw data: [`benchmark_output/benchmark_results.json`](benchmark_output/benchmark_results.json)
+
+---
+
+## Prerequisites
+
+Before installing MemCP, ensure you have the following on your machine:
+
+| Requirement | Version | Check Command |
+|-------------|---------|---------------|
+| **Python** | 3.10 or higher | `python3 --version` |
+| **pip** | Latest recommended | `pip --version` |
+| **Git** | Any recent version | `git --version` |
+| **Claude Code CLI** | Latest | `claude --version` |
+
+**Claude Code CLI** is required for MCP server registration, hooks, and sub-agent deployment. Install it from [Anthropic's documentation](https://docs.anthropic.com/en/docs/claude-code).
+
+**Optional** (for Docker installation):
+
+| Requirement | Version | Check Command |
+|-------------|---------|---------------|
+| **Docker** | 20.10+ | `docker --version` |
+| **Docker Compose** | 2.0+ (optional) | `docker compose version` |
 
 ---
 
@@ -370,7 +492,12 @@ memcp/
 │       ├── 008-three-zone-retention-lifecycle.md
 │       ├── 009-user-level-global-deployment.md
 │       └── 010-twelve-factor-configuration.md
-├── tests/                       # 16 test files, 341 tests
+├── tests/
+│   ├── unit/                   # 16 test files, 341 unit tests
+│   └── benchmark/              # 77 benchmarks (token efficiency, context rot, scale)
+├── benchmark_output/           # Generated benchmark reports
+│   ├── benchmark_report.md     # Human-readable comparison tables
+│   └── benchmark_results.json  # Machine-readable raw data
 ├── .github/workflows/
 │   ├── ci.yml                   # Lint + test matrix + Docker build
 │   └── release.yml              # PyPI publish on tag
@@ -435,6 +562,7 @@ pip install memcp[all]                     # Everything
 | [docs/GRAPH.md](docs/GRAPH.md) | MAGMA 4-graph — edge types, intent detection, entity extraction, traversal |
 | [docs/HOOKS.md](docs/HOOKS.md) | Auto-save hooks — setup, behavior, customization |
 | [docs/COMPARISON.md](docs/COMPARISON.md) | MemCP vs rlm-claude, CLAUDE.md, Letta, mem0, MAGMA |
+| [benchmark_output/benchmark_report.md](benchmark_output/benchmark_report.md) | Benchmark results — token efficiency, context rot, scale (77 benchmarks) |
 | [docs/adr/](docs/adr/) | Architecture Decision Records — 10 ADRs documenting key technical choices |
 
 ---
@@ -446,12 +574,16 @@ pip install memcp[all]                     # Everything
 python3 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
 
-# Run tests
-pytest tests/ -v
+# Run unit tests
+pytest tests/unit/ -v
 
-# Run tests with search extras
+# Run unit tests with search extras
 pip install -e ".[dev,search,fuzzy,semantic]"
-pytest tests/ -v
+pytest tests/unit/ -v
+
+# Run benchmarks
+pip install -e ".[dev,benchmark]"
+pytest tests/benchmark/ --benchmark-only -v
 
 # Lint
 ruff check src/ tests/
@@ -463,7 +595,7 @@ python -m memcp.server
 
 ### CI/CD
 
-- **GitHub Actions** runs on every push: lint (ruff) + test matrix (Python 3.10/3.11/3.12) + Docker build
+- **GitHub Actions** runs on every push: lint (ruff) + unit test matrix (Python 3.10/3.11/3.12) + Docker build
 - **Release** workflow publishes to PyPI on `v*` tag push
 
 ---

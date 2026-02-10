@@ -8,7 +8,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-HOOKS_DIR = Path(__file__).parent.parent / "hooks"
+HOOKS_DIR = Path(__file__).parent.parent.parent / "hooks"
 
 
 class TestPreCompactSave:

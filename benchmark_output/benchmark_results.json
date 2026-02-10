@@ -1,0 +1,86 @@
+{
+  "generated_at": "2026-02-11T00:09:45.579950+00:00",
+  "scenarios": {
+    "Session Startup": [
+      {
+        "scenario": "Session Startup",
+        "metric": "Reload 50 insights",
+        "native": 896,
+        "rlm": 167,
+        "unit": "tokens",
+        "savings_pct": 81.4,
+        "ratio": "5.4x"
+      },
+      {
+        "scenario": "Session Startup",
+        "metric": "Reload 200 insights",
+        "native": 3768,
+        "rlm": 433,
+        "unit": "tokens",
+        "savings_pct": 88.5,
+        "ratio": "8.7x"
+      },
+      {
+        "scenario": "Session Startup",
+        "metric": "Reload 500 insights",
+        "native": 9380,
+        "rlm": 462,
+        "unit": "tokens",
+        "savings_pct": 95.1,
+        "ratio": "20.3x"
+      }
+    ],
+    "Large Document Analysis": [
+      {
+        "scenario": "Large Document Analysis",
+        "metric": "Analyse 5K-token doc",
+        "native": 5077,
+        "rlm": 231,
+        "unit": "tokens",
+        "savings_pct": 95.5,
+        "ratio": "22.0x"
+      },
+      {
+        "scenario": "Large Document Analysis",
+        "metric": "Analyse 20K-token doc",
+        "native": 20209,
+        "rlm": 231,
+        "unit": "tokens",
+        "savings_pct": 98.9,
+        "ratio": "87.5x"
+      },
+      {
+        "scenario": "Large Document Analysis",
+        "metric": "Analyse 50K-token doc",
+        "native": 50460,
+        "rlm": 231,
+        "unit": "tokens",
+        "savings_pct": 99.5,
+        "ratio": "218.4x"
+      }
+    ],
+    "Cross-Reference Knowledge": [
+      {
+        "scenario": "Cross-Reference Knowledge",
+        "metric": "Find auth decisions + causes",
+        "native": 1861,
+        "rlm": 172,
+        "unit": "tokens",
+        "savings_pct": 90.8,
+        "ratio": "10.8x"
+      }
+    ],
+    "Multi-turn Accumulation": [
+      {
+        "scenario": "Multi-turn Accumulation",
+        "metric": "30 turns, retrieve turn-5 finding",
+        "native": 548,
+        "rlm": 505,
+        "unit": "tokens",
+        "savings_pct": 7.8,
+        "ratio": "1.1x"
+      }
+    ]
+  },
+  "total_comparisons": 8
+}

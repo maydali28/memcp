@@ -19,8 +19,9 @@ semantic-hq = ["fastembed>=0.5.0", "numpy>=1.24.0"]
 vectors = ["sqlite-vec>=0.1.0"]
 cache = ["diskcache>=5.6.0"]
 llm = ["httpx>=0.27.0"]
-dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "ruff>=0.1.0"]
-all = ["memcp[search,fuzzy,semantic,vectors,cache,llm,dev]"]
+dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "ruff>=0.1.0", "pre-commit>=3.0"]
+benchmark = ["pytest-benchmark>=4.0", "tabulate>=0.9"]
+all = ["memcp[search,fuzzy,semantic,vectors,cache,llm,dev,benchmark]"]
 
 [project.scripts]
 memcp = "memcp.server:main"
@@ -38,3 +39,6 @@ select = ["E", "F", "W", "I", "UP", "B", "SIM"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+# Run unit tests only:    pytest tests/unit/
+# Run benchmarks only:    pytest tests/benchmark/ --benchmark-only
+# Run everything:         pytest tests/

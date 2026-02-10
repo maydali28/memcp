@@ -32,22 +32,26 @@ pip install -e ".[dev]"
 ### Running Tests
 
 ```bash
-# Run all tests
-pytest tests/ -v
+# Run all unit tests
+pytest tests/unit/ -v
 
 # Run a specific test file
-pytest tests/test_memory.py -v
+pytest tests/unit/test_memory.py -v
 
 # Run tests matching a pattern
-pytest tests/ -v -k "graph"
+pytest tests/unit/ -v -k "graph"
 
 # Run with search extras (BM25, fuzzy)
 pip install -e ".[dev,search,fuzzy]"
-pytest tests/test_search.py -v -k "bm25 or fuzzy"
+pytest tests/unit/test_search.py -v -k "bm25 or fuzzy"
 
 # Run with semantic extras
 pip install -e ".[dev,semantic]"
-pytest tests/test_search.py -v -k "semantic"
+pytest tests/unit/test_search.py -v -k "semantic"
+
+# Run benchmarks
+pip install -e ".[dev,benchmark]"
+pytest tests/benchmark/ --benchmark-only -v
 ```
 
 Tests use `tmp_path` fixtures for isolation — each test gets its own data directory. No global state is shared between tests.
@@ -122,7 +126,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for diagrams and detailed expla
 1. Fork the repository and create a feature branch from `main`
 2. Make your changes following the code style guidelines below
 3. Add or update tests for your changes
-4. Ensure all tests pass: `pytest tests/ -v`
+4. Ensure all tests pass: `pytest tests/unit/ -v`
 5. Ensure linting passes: `ruff check src/ tests/ && ruff format --check src/ tests/`
 6. Write a clear commit message describing what and why
 7. Open a PR against `main`
@@ -130,7 +134,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for diagrams and detailed expla
 ### PR Checklist
 
 - [ ] Tests added or updated for new/changed functionality
-- [ ] All tests pass (`pytest tests/ -v`)
+- [ ] All tests pass (`pytest tests/unit/ -v`)
 - [ ] Lint passes (`ruff check src/ tests/`)
 - [ ] Format passes (`ruff format --check src/ tests/`)
 - [ ] Docstrings added for new public functions

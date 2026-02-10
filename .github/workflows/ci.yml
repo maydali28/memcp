@@ -18,7 +18,7 @@ jobs:
       - run: ruff check src/ tests/
       - run: ruff format --check src/ tests/
 
-  test-core:
+  test-unit:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install -e ".[dev]"
-      - run: pytest tests/ -v --tb=short
+      - run: pytest tests/unit/ -v --tb=short
         env:
           MEMCP_DATA_DIR: ${{ runner.temp }}/memcp-test
 
@@ -41,7 +41,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e ".[dev,search,fuzzy]"
-      - run: pytest tests/test_search.py -v --tb=short -k "bm25 or fuzzy or hybrid"
+      - run: pytest tests/unit/test_search.py -v --tb=short -k "bm25 or fuzzy or hybrid"
         env:
           MEMCP_DATA_DIR: ${{ runner.temp }}/memcp-test
 
@@ -53,7 +53,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e ".[dev,semantic]"
-      - run: pytest tests/test_search.py -v --tb=short -k "semantic"
+      - run: pytest tests/unit/test_search.py -v --tb=short -k "semantic"
         env:
           MEMCP_DATA_DIR: ${{ runner.temp }}/memcp-test
 
