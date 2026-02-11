@@ -501,81 +501,14 @@ deploy_agents() {
 # ── Setup Hooks ───────────────────────────────────────────────────────
 setup_hooks() {
     print_step 7 "Configure auto-save hooks"
-    echo ""
 
-    echo -e "  MemCP includes auto-save hooks that protect your context:"
-    echo -e "    ${BOLD}PreCompact${NC}      — Forces save before /compact"
-    echo -e "    ${BOLD}Reminders${NC}       — Progressive save reminders (10/20/30 turns)"
-    echo -e "    ${BOLD}Counter Reset${NC}   — Resets reminder counter after saves"
-    echo ""
+    local HOOK_SCRIPT="${PROJECT_DIR}/scripts/setup-hooks.sh"
 
-    local SETTINGS_FILE="${HOME}/.claude/settings.json"
-    local TEMPLATE_FILE="${PROJECT_DIR}/hooks/snippets/settings.json"
-
-    if [[ ! -f "$TEMPLATE_FILE" ]]; then
-        print_warn "Hook template not found at hooks/snippets/settings.json"
-        print_info "Hooks can be set up manually — see docs/HOOKS.md"
-        return
-    fi
-
-    if ask_yes_no "Merge auto-save hooks into ~/.claude/settings.json (user-level)?" "y"; then
-        mkdir -p "${HOME}/.claude"
-
-        # Merge MemCP hooks into existing settings (preserve non-MemCP entries)
-        local PYTHON_CMD="${PYTHON_CMD:-python3}"
-        if $PYTHON_CMD -c "
-import json, sys, os
-
-settings_file = '$SETTINGS_FILE'
-template_file = '$TEMPLATE_FILE'
-
-existing = {}
-if os.path.exists(settings_file):
-    try:
-        with open(settings_file) as f:
-            existing = json.load(f)
-    except (json.JSONDecodeError, IOError):
-        existing = {}
-
-with open(template_file) as f:
-    template = json.load(f)
-
-template_hooks = template.get('hooks', {})
-existing_hooks = existing.get('hooks', {})
-
-for event_type, entries in template_hooks.items():
-    if event_type not in existing_hooks:
-        existing_hooks[event_type] = []
-    for new_entry in entries:
-        new_matcher = new_entry.get('matcher', '')
-        new_commands = set()
-        for h in new_entry.get('hooks', []):
-            new_commands.add(h.get('command', ''))
-        already_exists = False
-        for existing_entry in existing_hooks[event_type]:
-            if existing_entry.get('matcher', '') == new_matcher:
-                existing_commands = set()
-                for h in existing_entry.get('hooks', []):
-                    existing_commands.add(h.get('command', ''))
-                if new_commands.issubset(existing_commands):
-                    already_exists = True
-                    break
-        if not already_exists:
-            existing_hooks[event_type].append(new_entry)
-
-existing['hooks'] = existing_hooks
-
-with open(settings_file, 'w') as f:
-    json.dump(existing, f, indent=2)
-    f.write('\n')
-" 2>/dev/null; then
-            print_ok "Hooks merged into ~/.claude/settings.json"
-        else
-            print_warn "Could not merge hooks automatically"
-            print_info "Manually merge hooks from hooks/snippets/settings.json into ~/.claude/settings.json"
-        fi
+    if [[ -f "$HOOK_SCRIPT" ]]; then
+        QUIET=true bash "$HOOK_SCRIPT" install
     else
-        print_info "Skipping hooks — you can set them up later (see docs/HOOKS.md)"
+        print_warn "Hook setup script not found at scripts/setup-hooks.sh"
+        print_info "Hooks can be set up manually — see docs/HOOKS.md"
     fi
 }
 

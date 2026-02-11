@@ -206,55 +206,14 @@ remove_components() {
 
     # Hooks (remove MemCP hooks from global ~/.claude/settings.json)
     if [[ "$HOOKS_EXIST" == "true" ]]; then
-        if ask_yes_no "Remove MemCP hooks from ~/.claude/settings.json?" "y"; then
-            # Remove only MemCP-related hook entries, preserve other settings
-            if command -v python3 &>/dev/null && python3 -c "
-import json, os
-
-settings_file = '${HOME}/.claude/settings.json'
-with open(settings_file) as f:
-    settings = json.load(f)
-
-hooks = settings.get('hooks', {})
-memcp_commands = {'pre_compact_save', 'auto_save_reminder', 'reset_counter', 'memcp'}
-
-# Filter out MemCP hook entries
-for event_type in list(hooks.keys()):
-    filtered = []
-    for entry in hooks[event_type]:
-        is_memcp = False
-        for hook in entry.get('hooks', []):
-            cmd = hook.get('command', '')
-            if any(mc in cmd for mc in memcp_commands):
-                is_memcp = True
-                break
-        matcher = entry.get('matcher', '')
-        if 'memcp' in matcher:
-            is_memcp = True
-        if not is_memcp:
-            filtered.append(entry)
-    if filtered:
-        hooks[event_type] = filtered
-    else:
-        del hooks[event_type]
-
-if hooks:
-    settings['hooks'] = hooks
-else:
-    settings.pop('hooks', None)
-
-with open(settings_file, 'w') as f:
-    json.dump(settings, f, indent=2)
-    f.write('\n')
-" 2>/dev/null; then
-                echo -e "    ${CHECK} MemCP hooks removed from ~/.claude/settings.json"
+        local HOOK_SCRIPT="${PROJECT_DIR}/scripts/setup-hooks.sh"
+        if [[ -f "$HOOK_SCRIPT" ]]; then
+            if QUIET=true bash "$HOOK_SCRIPT" remove; then
                 REMOVED=$((REMOVED+1))
-            else
-                echo -e "    ${CROSS} Failed to remove hooks (manual edit needed)"
-                echo -e "    ${DIM}  Edit ~/.claude/settings.json and remove MemCP hook entries${NC}"
             fi
         else
-            echo -e "    ${DIM}  Skipped hook configuration${NC}"
+            echo -e "    ${CROSS} Hook setup script not found at scripts/setup-hooks.sh"
+            echo -e "    ${DIM}  Edit ~/.claude/settings.json manually to remove MemCP hook entries${NC}"
         fi
         echo ""
     fi

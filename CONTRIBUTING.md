@@ -13,45 +13,22 @@ Thank you for your interest in contributing to MemCP! This guide will help you g
 ### Development Setup
 
 ```bash
-# Clone the repository
 git clone https://github.com/mohamedali-may/memcp.git
 cd memcp
-
-# Create a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # Linux/macOS
-# .venv\Scripts\activate   # Windows
-
-# Install in development mode with all extras
-pip install -e ".[all]"
-
-# Or install with minimal dev dependencies only
-pip install -e ".[dev]"
+make dev                    # Creates venv, installs all extras, sets up pre-commit
+source .venv/bin/activate
 ```
 
 ### Running Tests
 
 ```bash
-# Run all unit tests
-pytest tests/unit/ -v
+make test                   # Unit tests
+make test-all               # Unit + benchmark tests
+make benchmark              # Benchmark suite only
 
-# Run a specific test file
-pytest tests/unit/test_memory.py -v
-
-# Run tests matching a pattern
-pytest tests/unit/ -v -k "graph"
-
-# Run with search extras (BM25, fuzzy)
-pip install -e ".[dev,search,fuzzy]"
-pytest tests/unit/test_search.py -v -k "bm25 or fuzzy"
-
-# Run with semantic extras
-pip install -e ".[dev,semantic]"
-pytest tests/unit/test_search.py -v -k "semantic"
-
-# Run benchmarks
-pip install -e ".[dev,benchmark]"
-pytest tests/benchmark/ --benchmark-only -v
+# More targeted runs
+pytest tests/unit/test_memory.py -v          # Single file
+pytest tests/unit/ -v -k "graph"             # Pattern match
 ```
 
 Tests use `tmp_path` fixtures for isolation — each test gets its own data directory. No global state is shared between tests.
@@ -61,17 +38,8 @@ Tests use `tmp_path` fixtures for isolation — each test gets its own data dire
 We use [Ruff](https://docs.astral.sh/ruff/) for linting and formatting:
 
 ```bash
-# Check for lint errors
-ruff check src/ tests/
-
-# Auto-fix lint errors
-ruff check src/ tests/ --fix
-
-# Check formatting
-ruff format --check src/ tests/
-
-# Auto-format
-ruff format src/ tests/
+make lint                   # Check lint + formatting (same as CI)
+make fmt                    # Auto-fix lint errors + format
 ```
 
 Configuration is in `pyproject.toml`:
@@ -126,17 +94,16 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for diagrams and detailed expla
 1. Fork the repository and create a feature branch from `main`
 2. Make your changes following the code style guidelines below
 3. Add or update tests for your changes
-4. Ensure all tests pass: `pytest tests/unit/ -v`
-5. Ensure linting passes: `ruff check src/ tests/ && ruff format --check src/ tests/`
+4. Ensure all tests pass: `make test`
+5. Ensure linting passes: `make lint`
 6. Write a clear commit message describing what and why
 7. Open a PR against `main`
 
 ### PR Checklist
 
 - [ ] Tests added or updated for new/changed functionality
-- [ ] All tests pass (`pytest tests/unit/ -v`)
-- [ ] Lint passes (`ruff check src/ tests/`)
-- [ ] Format passes (`ruff format --check src/ tests/`)
+- [ ] All tests pass (`make test`)
+- [ ] Lint + format passes (`make lint`)
 - [ ] Docstrings added for new public functions
 - [ ] Tool docstrings follow the existing pattern (see `server.py`)
 - [ ] No new core dependencies added (optional deps are OK under `[project.optional-dependencies]`)

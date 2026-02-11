@@ -74,14 +74,23 @@ If context usage is below 55%, no reminder is output regardless of turn count.
 
 ## Hook Registration
 
-Hooks are registered in `~/.claude/settings.json` (user-level), which is merged from `hooks/snippets/settings.json` by the installer (`bash scripts/install.sh`, step 7). This makes hooks available across all your projects. To deploy manually:
+Hooks are registered in `~/.claude/settings.json` (user-level), which makes them available across all your projects. Use the dedicated hook manager script:
 
 ```bash
-# If ~/.claude/settings.json doesn't exist or is empty:
-cp hooks/snippets/settings.json ~/.claude/settings.json
+# Install hooks (merge into ~/.claude/settings.json)
+bash scripts/setup-hooks.sh install
 
-# If it already has content, manually merge the "hooks" key from hooks/snippets/settings.json
+# Remove hooks
+bash scripts/setup-hooks.sh remove
+
+# Check current hook status
+bash scripts/setup-hooks.sh status
+
+# Non-interactive install (e.g., in CI or from install.sh)
+bash scripts/setup-hooks.sh install --quiet
 ```
+
+The installer (`bash scripts/install.sh`, step 7) delegates to this script automatically. To deploy manually without the full installer, use `setup-hooks.sh install` directly.
 
 The configuration:
 
