@@ -34,7 +34,9 @@ def _load_state() -> dict:
     path = _get_state_path()
     if path.exists():
         try:
-            return json.loads(path.read_text())
+            state = json.loads(path.read_text())
+            state.setdefault("turn_count", 0)
+            return state
         except (json.JSONDecodeError, ValueError):
             pass
     return {"turn_count": 0}

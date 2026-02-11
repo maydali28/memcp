@@ -132,6 +132,36 @@ class TestResetCounter:
         state = json.loads(state_path.read_text())
         assert state["turn_count"] == 0
 
+    def test_preserves_other_state_keys(self, isolated_data_dir: Path) -> None:
+        # Set state with project/session alongside turn_count
+        state_path = isolated_data_dir / "state.json"
+        isolated_data_dir.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(
+            json.dumps(
+                {
+                    "turn_count": 15,
+                    "current_project": "my-project",
+                    "current_session": "my-project_2026-02-11_001",
+                }
+            )
+        )
+
+        env = {"MEMCP_DATA_DIR": str(isolated_data_dir)}
+        result = subprocess.run(
+            [sys.executable, str(HOOKS_DIR / "reset_counter.py")],
+            input="{}",
+            capture_output=True,
+            text=True,
+            timeout=10,
+            env={**dict(os.environ), **env},
+        )
+        assert result.returncode == 0
+
+        state = json.loads(state_path.read_text())
+        assert state["turn_count"] == 0
+        assert state["current_project"] == "my-project"
+        assert state["current_session"] == "my-project_2026-02-11_001"
+
     def test_handles_missing_state(self, isolated_data_dir: Path) -> None:
         env = {"MEMCP_DATA_DIR": str(isolated_data_dir)}
         result = subprocess.run(
@@ -145,3 +175,36 @@ class TestResetCounter:
         assert result.returncode == 0
         output = json.loads(result.stdout)
         assert output == {}
+
+
+class TestAutoSaveReminderStatePreservation:
+    def test_preserves_other_state_keys(self, isolated_data_dir: Path) -> None:
+        # Set state with project/session alongside turn_count
+        state_path = isolated_data_dir / "state.json"
+        isolated_data_dir.mkdir(parents=True, exist_ok=True)
+        state_path.write_text(
+            json.dumps(
+                {
+                    "turn_count": 5,
+                    "current_project": "my-project",
+                    "current_session": "my-project_2026-02-11_001",
+                }
+            )
+        )
+
+        env = {"MEMCP_DATA_DIR": str(isolated_data_dir)}
+        input_data = json.dumps({"context_usage_pct": 0})
+        result = subprocess.run(
+            [sys.executable, str(HOOKS_DIR / "auto_save_reminder.py")],
+            input=input_data,
+            capture_output=True,
+            text=True,
+            timeout=10,
+            env={**dict(os.environ), **env},
+        )
+        assert result.returncode == 0
+
+        state = json.loads(state_path.read_text())
+        assert state["turn_count"] == 6
+        assert state["current_project"] == "my-project"
+        assert state["current_session"] == "my-project_2026-02-11_001"
