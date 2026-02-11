@@ -34,9 +34,15 @@ def main() -> None:
     except (json.JSONDecodeError, ValueError):
         _input_data = {}
 
-    # Reset turn counter
+    # Reset turn counter while preserving other state (project, session, etc.)
     state_path = _get_state_path()
-    state = {"turn_count": 0}
+    state: dict = {}
+    if state_path.exists():
+        try:
+            state = json.loads(state_path.read_text())
+        except (json.JSONDecodeError, ValueError):
+            state = {}
+    state["turn_count"] = 0
     state_path.write_text(json.dumps(state, indent=2))
 
     # No output needed — silent reset

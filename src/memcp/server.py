@@ -499,6 +499,20 @@ def memcp_sessions(project: str = "", limit: int = 20) -> str:
     return do_sessions(project=project, limit=limit)
 
 
+def _init_session() -> None:
+    """Detect project and register a new session on server startup.
+
+    Ensures state.json has current_project/current_session and
+    sessions.json tracks the session lifecycle.
+    """
+    from memcp.core.project import detect_project, generate_session_id, register_session
+
+    project = detect_project()
+    session_id = generate_session_id(project)
+    register_session(session_id, project)
+
+
 def main() -> None:
     """Run the MemCP MCP server."""
+    _init_session()
     mcp.run()
