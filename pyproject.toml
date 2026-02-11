@@ -1,12 +1,12 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [project]
 name = "memcp"
 version = "0.1.0"
 description = "Persistent memory MCP server for Claude Code — never lose context again"
-readme = "README.md"
+dynamic = ["readme"]
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = ["mcp>=1.0.0,<2.0.0", "pydantic>=2.0.0,<3.0.0"]
@@ -23,8 +23,26 @@ dev = ["pytest>=8.0", "pytest-asyncio>=0.24", "ruff>=0.1.0", "pre-commit>=3.0"]
 benchmark = ["pytest-benchmark>=4.0", "tabulate>=0.9"]
 all = ["memcp[search,fuzzy,semantic,vectors,cache,llm,dev,benchmark]"]
 
+[project.urls]
+Homepage = "https://github.com/maydali28/memcp"
+Documentation = "https://github.com/maydali28/memcp#readme"
+Changelog = "https://github.com/maydali28/memcp/blob/main/CHANGELOG.md"
+Issues = "https://github.com/maydali28/memcp/issues"
+
 [project.scripts]
 memcp = "memcp.server:main"
+
+[tool.hatch.metadata.hooks.fancy-pypi-readme]
+content-type = "text/markdown"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "README.md"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+text = "\n---\n\n"
+
+[[tool.hatch.metadata.hooks.fancy-pypi-readme.fragments]]
+path = "CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/memcp"]
