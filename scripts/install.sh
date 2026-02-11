@@ -380,7 +380,7 @@ register_mcp() {
         if [[ "$INSTALL_METHOD" == "docker" ]]; then
             echo -e "    ${DIM}claude mcp add memcp -- docker run --rm -i -v ~/.memcp:/data -e MEMCP_DATA_DIR=/data memcp${NC}"
         else
-            echo -e "    ${DIM}claude mcp add memcp ${MEMCP_PYTHON} -- -m memcp.server${NC}"
+            echo -e "    ${DIM}claude mcp add memcp ${MEMCP_PYTHON} -- -m memcp${NC}"
         fi
         return
     fi
@@ -420,11 +420,11 @@ register_mcp() {
             print_info "Register manually: claude mcp add memcp -s ${SCOPE} -- docker run --rm -i -v ~/.memcp:/data -e MEMCP_DATA_DIR=/data memcp"
         fi
     else
-        if claude mcp add memcp -s "$SCOPE" -- "${MEMCP_PYTHON}" -m memcp.server 2>/dev/null; then
+        if claude mcp add memcp -s "$SCOPE" -- "${MEMCP_PYTHON}" -m memcp 2>/dev/null; then
             print_ok "MCP server registered"
         else
             print_fail "MCP registration failed"
-            print_info "Register manually: claude mcp add memcp -s ${SCOPE} -- ${MEMCP_PYTHON} -m memcp.server"
+            print_info "Register manually: claude mcp add memcp -s ${SCOPE} -- ${MEMCP_PYTHON} -m memcp"
         fi
     fi
 

@@ -114,5 +114,5 @@ Use `pydantic-settings` for automatic env var binding with validation. Rejected 
 
 Pass configuration as CLI arguments: `memcp --data-dir /data --max-insights 5000`. Rejected because:
 - MCP servers are started by Claude Code, not directly by users. CLI args would need to be configured in the MCP registration command.
-- `claude mcp add memcp ... -- -m memcp.server --data-dir /data` is less ergonomic than setting an env var
+- `claude mcp add memcp ... -- -m memcp --data-dir /data` is less ergonomic than setting an env var
 - Env vars are inherited automatically by child processes; CLI args are not

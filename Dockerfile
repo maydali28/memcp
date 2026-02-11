@@ -2,9 +2,9 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md CHANGELOG.md ./
 COPY src/ src/
 
 RUN pip install --no-cache-dir .
 
-ENTRYPOINT ["python", "-m", "memcp.server"]
+ENTRYPOINT ["python", "-m", "memcp"]

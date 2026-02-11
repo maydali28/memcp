@@ -285,7 +285,7 @@ source .venv/bin/activate
 # pip install -e ".[dev,semantic,cache]"    # + vector embeddings + caching
 
 # 2. Register with Claude Code
-claude mcp add memcp .venv/bin/python -- -m memcp.server -s user
+claude mcp add memcp -s user -- .venv/bin/python -m memcp
 
 # 3. Deploy sub-agents (user-level, available across all projects)
 mkdir -p ~/.claude/agents

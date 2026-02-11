@@ -59,7 +59,7 @@ benchmark: ## Run benchmark suite
 
 .PHONY: run
 run: ## Start the MCP server
-	$(PYTHON) -m memcp.server
+	$(PYTHON) -m memcp
 
 .PHONY: docker
 docker: ## Build and run via Docker Compose
