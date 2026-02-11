@@ -127,14 +127,25 @@ def list_sessions(
 
     Optional project filter. The *domain* parameter is accepted for
     compatibility but currently unused.
+
+    ``insight_count`` and ``context_count`` are computed dynamically from the
+    graph DB and context store so they stay accurate across sessions.
     """
     sessions = _load_sessions()
     items: list[dict[str, Any]] = []
 
+    # Compute per-session insight counts from graph DB
+    insight_counts = _count_insights_per_session()
+    # Compute per-session context counts from context store
+    context_counts = _count_contexts_per_session()
+
     for sid, entry in sessions.get("sessions", {}).items():
         if project and entry.get("project") != project:
             continue
-        items.append({"session_id": sid, **entry})
+        enriched = {"session_id": sid, **entry}
+        enriched["insight_count"] = insight_counts.get(sid, 0)
+        enriched["context_count"] = context_counts.get(sid, 0)
+        items.append(enriched)
 
     items.sort(key=lambda x: x.get("last_active_at", ""), reverse=True)
     return items[:limit]
@@ -258,6 +269,68 @@ def list_projects() -> list[dict[str, Any]]:
 
 
 # ── Internal Helpers ──────────────────────────────────────────────────
+
+
+def _count_insights_per_session() -> dict[str, int]:
+    """Count insights per session from the graph DB (or JSON fallback).
+
+    Returns a mapping of session_id -> count.
+    """
+    config = get_config()
+    counts: dict[str, int] = {}
+
+    # Try graph DB first
+    if config.graph_db_path.exists():
+        try:
+            import sqlite3
+
+            conn = sqlite3.connect(str(config.graph_db_path))
+            conn.row_factory = sqlite3.Row
+            rows = conn.execute(
+                "SELECT session, COUNT(*) as cnt FROM nodes WHERE session != '' GROUP BY session"
+            ).fetchall()
+            for row in rows:
+                counts[row["session"]] = row["cnt"]
+            conn.close()
+        except Exception:
+            pass
+        return counts
+
+    # JSON fallback
+    if config.memory_path.exists():
+        try:
+            data = locked_read_json(config.memory_path)
+            if data and data.get("insights"):
+                for ins in data["insights"]:
+                    sid = ins.get("session", "")
+                    if sid:
+                        counts[sid] = counts.get(sid, 0) + 1
+        except Exception:
+            pass
+
+    return counts
+
+
+def _count_contexts_per_session() -> dict[str, int]:
+    """Count contexts per session from context store metadata.
+
+    Returns a mapping of session_id -> count.
+    """
+    config = get_config()
+    counts: dict[str, int] = {}
+
+    if config.contexts_dir.exists():
+        for ctx_dir in config.contexts_dir.iterdir():
+            if not ctx_dir.is_dir():
+                continue
+            meta = locked_read_json(ctx_dir / "meta.json")
+            if meta is None:
+                continue
+            sid = meta.get("session", "")
+            if sid:
+                counts[sid] = counts.get(sid, 0) + 1
+
+    return counts
 
 
 def _load_sessions() -> dict[str, Any]:

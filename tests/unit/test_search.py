@@ -217,6 +217,52 @@ class TestSearchAutoSelection:
         assert len(results) >= 1
 
 
+class TestSearchAllRanking:
+    """Verify that memory insights compete fairly with context chunks."""
+
+    def test_memory_insight_not_buried_by_context_chunks(self, isolated_data_dir: Path) -> None:
+        """A highly relevant memory insight should rank above weakly relevant chunks."""
+        # Store an insight that directly matches the query
+        remember("MAGMA graph uses SQLite for edge storage", tags="magma,sqlite,graph")
+
+        # Store a context with many chunks that only weakly match
+        lines = [f"Line {i}: unrelated content about various topics" for i in range(20)]
+        lines[5] = "This line mentions magma in passing, nothing more"
+        content = "\n".join(lines)
+        context_store.load("weak-match", content=content)
+        chunker.chunk_context("weak-match", strategy="lines", chunk_size=2)
+
+        result = search_all("MAGMA graph SQLite", source="all", scope="all")
+        assert result["count"] >= 1
+
+        # The memory insight should appear in results
+        memory_results = [r for r in result["results"] if r.get("_source") == "memory"]
+        assert len(memory_results) >= 1, "Memory insight missing from search results"
+
+    def test_memory_insights_get_scores(self, isolated_data_dir: Path) -> None:
+        """Memory insights should receive _score values when a query is provided."""
+        remember("Python web framework comparison", tags="python,web")
+
+        result = search_all("Python web", source="memory", scope="all")
+        assert result["count"] >= 1
+        for r in result["results"]:
+            assert "_score" in r, "Memory insight missing _score"
+
+    def test_combined_results_sorted_by_score(self, isolated_data_dir: Path) -> None:
+        """All results with scores should be sorted descending."""
+        remember("Alpha database engine details", tags="database,alpha")
+        remember("Beta unrelated topic", tags="misc")
+
+        content = "Alpha database provides fast queries.\nGamma is something else."
+        context_store.load("alpha-db", content=content)
+        chunker.chunk_context("alpha-db", strategy="lines", chunk_size=1)
+
+        result = search_all("Alpha database", source="all", scope="all")
+        scored = [r for r in result["results"] if "_score" in r]
+        scores = [r["_score"] for r in scored]
+        assert scores == sorted(scores, reverse=True), "Results not sorted by score"
+
+
 class TestSearchAllCapabilities:
     def test_hybrid_in_capabilities(self, isolated_data_dir: Path) -> None:
         result = search_all("test", source="memory", scope="all")

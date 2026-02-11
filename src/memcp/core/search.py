@@ -91,7 +91,7 @@ def keyword_search(
             scored.append((score, doc))
 
     scored.sort(key=lambda x: -x[0])
-    results = [doc for _, doc in scored[:limit]]
+    results = [{**doc, "_score": score} for score, doc in scored[:limit]]
 
     if max_tokens > 0:
         results = _apply_token_budget(results, max_tokens)
@@ -411,12 +411,21 @@ def search_all(
 
     # Search memory insights
     if source in ("all", "memory"):
+        # Fetch candidate insights via recall (handles project/session scoping).
+        # Pass empty query so recall returns all candidates without its own
+        # keyword filtering; scoring is done below via search() instead.
         insights = recall(
-            query=query,
-            limit=limit,
+            query="",
+            limit=limit * 5,  # over-fetch so search() has enough candidates to score
             project=project,
             scope=scope,
         )
+        # Score insights through the same search pipeline as context chunks
+        # so they get _score values and compete fairly in re-ranking
+        if query.strip() and insights:
+            insights = search(query, insights, limit=limit, method=method)
+        else:
+            insights = insights[:limit]
         for ins in insights:
             ins["_source"] = "memory"
         results.extend(insights)

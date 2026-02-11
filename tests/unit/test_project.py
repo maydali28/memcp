@@ -148,6 +148,67 @@ class TestListSessions:
         assert result[0]["session_id"] == "s2"
 
 
+class TestListSessionsDynamicCounts:
+    """Verify that list_sessions computes insight_count and context_count dynamically."""
+
+    def test_insight_count_from_graph(self, isolated_data_dir: Path) -> None:
+        register_session("sess_dyn", "dynproj")
+        from memcp.core.memory import remember
+
+        remember(content="Dynamic count insight 1", category="fact")
+        remember(content="Dynamic count insight 2", category="fact")
+
+        result = list_sessions()
+        sess = next(s for s in result if s["session_id"] == "sess_dyn")
+        assert sess["insight_count"] == 2
+
+    def test_context_count_from_store(self, isolated_data_dir: Path) -> None:
+        register_session("sess_ctx", "ctxproj")
+        from memcp.core.context_store import load
+
+        load(name="ctx-dyn-1", content="Some dynamic context")
+        load(name="ctx-dyn-2", content="Another dynamic context")
+
+        result = list_sessions()
+        sess = next(s for s in result if s["session_id"] == "sess_ctx")
+        assert sess["context_count"] == 2
+
+    def test_mixed_counts(self, isolated_data_dir: Path) -> None:
+        register_session("sess_mix", "mixproj")
+        from memcp.core.context_store import load
+        from memcp.core.memory import remember
+
+        remember(content="Mixed insight", category="decision")
+        load(name="ctx-mix", content="Mixed context content")
+
+        result = list_sessions()
+        sess = next(s for s in result if s["session_id"] == "sess_mix")
+        assert sess["insight_count"] == 1
+        assert sess["context_count"] == 1
+
+    def test_zero_for_empty_session(self, isolated_data_dir: Path) -> None:
+        register_session("sess_empty", "emptyproj")
+        result = list_sessions()
+        sess = next(s for s in result if s["session_id"] == "sess_empty")
+        assert sess["insight_count"] == 0
+        assert sess["context_count"] == 0
+
+    def test_counts_isolated_between_sessions(self, isolated_data_dir: Path) -> None:
+        register_session("sess_a", "proj")
+        from memcp.core.memory import remember
+
+        remember(content="Insight for session A", category="fact")
+
+        register_session("sess_b", "proj")
+        remember(content="Insight for session B", category="fact")
+
+        result = list_sessions()
+        sess_a = next(s for s in result if s["session_id"] == "sess_a")
+        sess_b = next(s for s in result if s["session_id"] == "sess_b")
+        assert sess_a["insight_count"] == 1
+        assert sess_b["insight_count"] == 1
+
+
 class TestGetSetCurrentSession:
     def test_empty_when_unset(self, isolated_data_dir: Path) -> None:
         assert get_current_session() == ""

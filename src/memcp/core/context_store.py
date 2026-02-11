@@ -27,7 +27,7 @@ from memcp.core.fileutil import (
     locked_read_json,
     safe_name,
 )
-from memcp.core.project import get_current_project
+from memcp.core.project import get_current_project, get_current_session
 
 _TYPE_EXTENSIONS = {
     ".py": "python",
@@ -141,6 +141,7 @@ def load(
         "token_estimate": estimate_tokens(content),
         "hash": c_hash,
         "project": project or get_current_project(),
+        "session": get_current_session(),
         "access_count": 0,
         "created_at": now,
         "updated_at": now,
