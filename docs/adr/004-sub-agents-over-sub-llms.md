@@ -27,7 +27,7 @@ The chosen approach must support:
 
 ## Decision
 
-Use **Claude Code custom sub-agents** defined as `.md` files in `templates/agents/`, deployed to `~/.claude/agents/` by the installer.
+Use **Claude Code custom sub-agents** defined as `.md` files in `agents/`, deployed to `~/.claude/agents/` by the installer.
 
 Four sub-agents implement the RLM pattern:
 

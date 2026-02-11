@@ -59,7 +59,7 @@ Triggers after `memcp_remember` or `memcp_load_context` calls. Resets the turn c
 
 ### Deployment
 
-Hooks are registered in `templates/settings.json` and merged into `~/.claude/settings.json` (user-level) by the installer. This makes hooks active across all projects.
+Hooks are registered in `hooks/snippets/settings.json` and merged into `~/.claude/settings.json` (user-level) by the installer. This makes hooks active across all projects.
 
 ## Consequences
 

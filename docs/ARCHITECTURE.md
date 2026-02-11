@@ -204,18 +204,21 @@ core/*.py          # Business logic — returns plain dicts, no JSON serializati
 MemCP separates source templates from deployed configuration. The `templates/` directory contains the canonical versions of Claude Code configuration files. The installer (`scripts/install.sh`) deploys these to their target locations at install time.
 
 ```
+hooks/snippets/
+└── settings.json                   # Hook registration → merged into ~/.claude/settings.json
+
+agents/                             # RLM sub-agent definitions → ~/.claude/agents/
+├── memcp-analyzer.md               # Peek → identify → load → analyze (Haiku)
+├── memcp-mapper.md                 # MAP phase (Haiku, parallel)
+├── memcp-synthesizer.md            # REDUCE phase (Sonnet)
+└── memcp-entity-extractor.md       # LLM entity extraction (Haiku)
+
 templates/                          # Source (tracked in git)
-├── CLAUDE.md                       # Session instructions → deployed to project root
-├── settings.json                   # Hook registration → merged into ~/.claude/settings.json
-└── agents/                         # RLM sub-agent definitions → ~/.claude/agents/
-    ├── memcp-analyzer.md           # Peek → identify → load → analyze (Haiku)
-    ├── memcp-mapper.md             # MAP phase (Haiku, parallel)
-    ├── memcp-synthesizer.md        # REDUCE phase (Sonnet)
-    └── memcp-entity-extractor.md   # LLM entity extraction (Haiku)
+└── CLAUDE.md                       # Session instructions → deployed to project root
 
 ~/.claude/                          # Deployed (user-level, global)
-├── settings.json                   # ← hooks merged from templates/settings.json
-└── agents/                         # ← cp templates/agents/memcp-*.md
+├── settings.json                   # ← hooks merged from hooks/snippets/settings.json
+└── agents/                         # ← cp agents/memcp-*.md
     └── memcp-*.md
 
 <project>/CLAUDE.md                 # ← cp templates/CLAUDE.md (project-level)

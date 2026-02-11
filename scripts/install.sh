@@ -446,11 +446,11 @@ deploy_agents() {
     echo -e "    ${BOLD}memcp-entity-extractor${NC}  — LLM-based entity extraction (Haiku)"
     echo ""
 
-    local AGENTS_SRC="${PROJECT_DIR}/templates/agents"
+    local AGENTS_SRC="${PROJECT_DIR}/agents"
     local AGENTS_DST="${HOME}/.claude/agents"
 
     if [[ ! -d "$AGENTS_SRC" ]]; then
-        print_warn "Agent templates not found at templates/agents/"
+        print_warn "Agent templates not found at agents/"
         print_info "Sub-agents can be set up manually — see docs/ARCHITECTURE.md"
         return
     fi
@@ -494,7 +494,7 @@ deploy_agents() {
         done
     else
         print_info "Skipping sub-agents — deploy later with:"
-        echo -e "    ${DIM}mkdir -p ~/.claude/agents && cp templates/agents/memcp-*.md ~/.claude/agents/${NC}"
+        echo -e "    ${DIM}mkdir -p ~/.claude/agents && cp agents/memcp-*.md ~/.claude/agents/${NC}"
     fi
 }
 
@@ -510,10 +510,10 @@ setup_hooks() {
     echo ""
 
     local SETTINGS_FILE="${HOME}/.claude/settings.json"
-    local TEMPLATE_FILE="${PROJECT_DIR}/templates/settings.json"
+    local TEMPLATE_FILE="${PROJECT_DIR}/hooks/snippets/settings.json"
 
     if [[ ! -f "$TEMPLATE_FILE" ]]; then
-        print_warn "Hook template not found at templates/settings.json"
+        print_warn "Hook template not found at hooks/snippets/settings.json"
         print_info "Hooks can be set up manually — see docs/HOOKS.md"
         return
     fi
@@ -572,7 +572,7 @@ with open(settings_file, 'w') as f:
             print_ok "Hooks merged into ~/.claude/settings.json"
         else
             print_warn "Could not merge hooks automatically"
-            print_info "Manually merge hooks from templates/settings.json into ~/.claude/settings.json"
+            print_info "Manually merge hooks from hooks/snippets/settings.json into ~/.claude/settings.json"
         fi
     else
         print_info "Skipping hooks — you can set them up later (see docs/HOOKS.md)"

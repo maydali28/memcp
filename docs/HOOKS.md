@@ -74,13 +74,13 @@ If context usage is below 55%, no reminder is output regardless of turn count.
 
 ## Hook Registration
 
-Hooks are registered in `~/.claude/settings.json` (user-level), which is merged from `templates/settings.json` by the installer (`bash scripts/install.sh`, step 7). This makes hooks available across all your projects. To deploy manually:
+Hooks are registered in `~/.claude/settings.json` (user-level), which is merged from `hooks/snippets/settings.json` by the installer (`bash scripts/install.sh`, step 7). This makes hooks available across all your projects. To deploy manually:
 
 ```bash
 # If ~/.claude/settings.json doesn't exist or is empty:
-cp templates/settings.json ~/.claude/settings.json
+cp hooks/snippets/settings.json ~/.claude/settings.json
 
-# If it already has content, manually merge the "hooks" key from templates/settings.json
+# If it already has content, manually merge the "hooks" key from hooks/snippets/settings.json
 ```
 
 The configuration:

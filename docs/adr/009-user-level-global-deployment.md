@@ -34,8 +34,8 @@ Deploy all configuration to **user-level** (`~/.claude/`):
 
 | Artifact | Location | Method |
 |----------|----------|--------|
-| Sub-agents | `~/.claude/agents/memcp-*.md` | Copy from `templates/agents/` |
-| Hooks | `~/.claude/settings.json` | Merge from `templates/settings.json` |
+| Sub-agents | `~/.claude/agents/memcp-*.md` | Copy from `agents/` |
+| Hooks | `~/.claude/settings.json` | Merge from `hooks/snippets/settings.json` |
 | MCP server | User scope | `claude mcp add memcp ... -s user` |
 
 ### Merge Strategy for Hooks
@@ -43,7 +43,7 @@ Deploy all configuration to **user-level** (`~/.claude/`):
 The installer does not overwrite `~/.claude/settings.json`. It merges MemCP hook entries into the existing file:
 
 1. Read existing `~/.claude/settings.json` (or start with `{}` if absent)
-2. For each hook entry in `templates/settings.json`:
+2. For each hook entry in `hooks/snippets/settings.json`:
    - Check if an entry with the same `matcher` and `command` already exists
    - If not, append the entry to the appropriate event type array
 3. Write back the merged result, preserving all non-MemCP settings
@@ -60,8 +60,8 @@ The uninstaller surgically removes only MemCP artifacts:
 ### Source Templates
 
 Configuration templates live in the repository at `templates/`:
-- `templates/agents/memcp-*.md` — Sub-agent definitions
-- `templates/settings.json` — Hook registration
+- `agents/memcp-*.md` — Sub-agent definitions
+- `hooks/snippets/settings.json` — Hook registration
 
 Contributors edit templates, not deployed files. The installer copies from templates to `~/.claude/`.
 

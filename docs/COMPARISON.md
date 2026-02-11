@@ -21,7 +21,7 @@
 | Auto-Save Hooks | Yes (PreCompact) | Yes (PreCompact) | No | Self-directed | Unknown | Yes (dual-stream) |
 | Progressive Reminders | Yes (turn + context %) | Yes (turn + context %) | No | No | No | No |
 | Concurrency Safety | Yes (flock + SQLite WAL) | Yes (flock + atomic) | No | Unknown | Unknown | Yes |
-| Sub-Agents (RLM) | Yes (templates/agents/ → ~/.claude/agents/) | Yes (skills) | No | Yes (agent) | Unknown | Yes (required) |
+| Sub-Agents (RLM) | Yes (agents/ → ~/.claude/agents/) | Yes (skills) | No | Yes (agent) | Unknown | Yes (required) |
 | Map-Reduce | Yes (mapper + synthesizer) | Yes (skills) | No | No | No | Partial |
 | Multi-Project | Yes | Yes | Partial (per-dir) | Unknown | Unknown | Unknown |
 | Multi-Session | Yes | Yes | No | Yes | Yes | Yes |
@@ -37,7 +37,7 @@ MemCP and rlm-claude share the same RLM-based approach (context-as-variable, tie
 
 - **Graph memory**: MemCP adds MAGMA 4-graph (semantic, temporal, causal, entity edges) with intent-aware traversal. rlm-claude uses flat storage.
 - **SQLite backend**: MemCP stores insights in SQLite with WAL mode, supporting ACID transactions and efficient queries. rlm-claude uses JSON files.
-- **Sub-agents vs skills**: MemCP uses Claude Code custom sub-agents (defined in `templates/agents/`, deployed to `~/.claude/agents/` by the installer) — independent sessions with their own context windows, proper frontmatter (`tools`, `mcpServers`, `model`). rlm-claude uses skills (prompt templates in the main session).
+- **Sub-agents vs skills**: MemCP uses Claude Code custom sub-agents (defined in `agents/`, deployed to `~/.claude/agents/` by the installer) — independent sessions with their own context windows, proper frontmatter (`tools`, `mcpServers`, `model`). rlm-claude uses skills (prompt templates in the main session).
 - **Maturity**: rlm-claude has more mature multi-project/session support from earlier development. MemCP rebuilds these features with graph integration.
 
 ### MemCP vs CLAUDE.md

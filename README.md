@@ -289,12 +289,12 @@ claude mcp add memcp .venv/bin/python -- -m memcp.server -s user
 
 # 4. Deploy sub-agents (user-level, available across all projects)
 mkdir -p ~/.claude/agents
-cp templates/agents/memcp-*.md ~/.claude/agents/
+cp agents/memcp-*.md ~/.claude/agents/
 
 # 5. Merge hooks into global Claude Code settings
 # If ~/.claude/settings.json doesn't exist or is empty:
-cp templates/settings.json ~/.claude/settings.json
-# If it already has content, manually merge the "hooks" key from templates/settings.json
+cp hooks/snippets/settings.json ~/.claude/settings.json
+# If it already has content, manually merge the "hooks" key from hooks/snippets/settings.json
 
 # 6. Deploy CLAUDE.md to your project
 cp templates/CLAUDE.md ./CLAUDE.md
@@ -461,15 +461,16 @@ memcp/
 ├── hooks/
 │   ├── pre_compact_save.py      # Block /compact until context saved
 │   ├── auto_save_reminder.py    # Progressive reminders (10/20/30 turns)
-│   └── reset_counter.py         # Reset counter after saves
+│   ├── reset_counter.py         # Reset counter after saves
+│   └── snippets/
+│       └── settings.json        # Hook registration (merged into ~/.claude/settings.json)
+├── agents/                      # RLM sub-agent templates (deployed to ~/.claude/agents/)
+│   ├── memcp-analyzer.md        # Peek → identify → load → analyze
+│   ├── memcp-mapper.md          # MAP phase (Haiku, parallel)
+│   ├── memcp-synthesizer.md     # REDUCE phase (Sonnet)
+│   └── memcp-entity-extractor.md  # LLM entity extraction
 ├── templates/                   # Deployed by installer to target locations
-│   ├── CLAUDE.md                # Session instructions (deployed to project root)
-│   ├── settings.json            # Hook registration (merged into ~/.claude/settings.json)
-│   └── agents/                  # RLM sub-agent templates (deployed to ~/.claude/agents/)
-│       ├── memcp-analyzer.md    # Peek → identify → load → analyze
-│       ├── memcp-mapper.md      # MAP phase (Haiku, parallel)
-│       ├── memcp-synthesizer.md # REDUCE phase (Sonnet)
-│       └── memcp-entity-extractor.md  # LLM entity extraction
+│   └── CLAUDE.md                # Session instructions (deployed to project root)
 ├── scripts/
 │   ├── install.sh               # Interactive installer (8 steps)
 │   └── uninstall.sh             # Cleanup script

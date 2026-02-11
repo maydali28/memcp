@@ -97,13 +97,13 @@ When adding or modifying functionality:
 
 ### Templates Directory
 
-The `templates/` directory contains Claude Code configuration files deployed by the installer:
+The following directories contain Claude Code configuration files deployed by the installer:
 
 - `templates/CLAUDE.md` — Session instructions for Claude Code (deployed to project root)
-- `templates/agents/memcp-*.md` — RLM sub-agent definitions (frontmatter + system prompt), deployed to `~/.claude/agents/`
-- `templates/settings.json` — Hook registration (PreCompact, PostToolUse, Notification), merged into `~/.claude/settings.json`
+- `agents/memcp-*.md` — RLM sub-agent definitions (frontmatter + system prompt), deployed to `~/.claude/agents/`
+- `hooks/snippets/settings.json` — Hook registration (PreCompact, PostToolUse, Notification), merged into `~/.claude/settings.json`
 
-When modifying sub-agents, hooks, or session instructions, **edit the files in `templates/`**, not the deployed copies. The deployed files are generated from templates by the installer.
+When modifying sub-agents, hooks, or session instructions, **edit the source files** (`agents/`, `hooks/snippets/`, `templates/`), not the deployed copies. The deployed files are generated from these sources by the installer.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for diagrams and detailed explanations.
 

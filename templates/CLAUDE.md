@@ -80,7 +80,7 @@ MemCP includes 4 Claude Code sub-agents that implement the RLM (Recursive Langua
 
 ### Setup
 
-Sub-agent templates live in `templates/agents/` and are deployed to `~/.claude/agents/` (user-level) by the installer, making them available across all projects:
+Sub-agent templates live in `agents/` and are deployed to `~/.claude/agents/` (user-level) by the installer, making them available across all projects:
 
 ```bash
 # Via installer (recommended)
@@ -88,7 +88,7 @@ bash scripts/install.sh    # Step 6 deploys agents
 
 # Manual deployment
 mkdir -p ~/.claude/agents
-cp templates/agents/memcp-*.md ~/.claude/agents/
+cp agents/memcp-*.md ~/.claude/agents/
 ```
 
 Each agent uses proper Claude Code frontmatter (`tools`, `mcpServers`, `model`, `maxTurns`). They reference the `memcp` MCP server and restrict their tool access to only the MCP tools they need.
