@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/maydali28-memcp-badge.png)](https://mseep.ai/app/maydali28-memcp)
+
 <p align="center">
 
 ```
